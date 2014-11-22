@@ -46,14 +46,22 @@ var currentMeh = {};
 var fetchAndNotify = function() {
   request('http://meh.com', function (error, response, html) {
     if (!error && response.statusCode === 200) {
-      // meh parsing
+      // load meh html
       var $ = cheerio.load(html);
-      var buyButton = $('div#hero-buttons button.buy-button');
+      // special meh parsing
+      var buyButton = $('#hero-buttons button.buy-button');
+      var photos = $('#gallery .photos img').each(function(index, img) {
+        var $img = $(img);
+        var src = $img.attr('data-src');
+        $img.attr('src', src);
+      });
+      // populate subject/body with pieces from the deal listing
       var subject = $('section.features h2').text(),
           body  = '<div><a href="' + buyButton.attr('href') + '">' + buyButton.text() + '</a></div>';
-          body += $('div#price-check').html();
-          body += $('section.features').html();
-          body += $('section.story').html();
+          body += '<div>' + $('#price-check').html() + '</div>';
+          body += '<div>' + $('section.features').html() + '</div>';
+          body += '<div>' + $('section.story').html() + '</div>';
+          body += '<div>' + photos + '</div>';
 
       // populate mail with meh deal
       mailOptions.subject = 'meh - ' + utils.trim(subject);
