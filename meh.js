@@ -68,12 +68,12 @@ var fetchAndNotify = function() {
       mailOptions.html = utils.trim(body);
     } else {
       // error logging
-      console.error('status code' + response.statusCode);
+      console.error('error - meh remote status code' + response.statusCode);
       console.error(error);
 
       // populate mail with error
       mailOptions.subject = 'meh - error';
-      mailOptions.text = 'Failed to parse meh for notification: HTTP ' + response.statusCode;
+      mailOptions.text = 'Failed to contact meh for notification: HTTP ' + response.statusCode;
     }
 
     // send the mail
@@ -83,16 +83,17 @@ var fetchAndNotify = function() {
     currentMeh = mailOptions;
     currentMeh.to = '[redacted]';
   });
-}();
+};
 
 // setup the schedule
 later.date.localTime();
-var schedule = later.parse.text('at 12:15am'),
-    timer = later.setInterval(fetchAndNotify, schedule),
-    occurrences = later.schedule(schedule);
+var schedule = later.parse.text('at 00:05 am'),
+    timer = later.setInterval(fetchAndNotify, schedule);
 
 // handles incoming requests to the server
 var _requestHandler = function(request, response) {
+  var occurrences = later.schedule(schedule);
+
   response.writeHead(200, {'Content-Type': 'text/plain'});
   response.write('waiting...\n');
   response.write('next notification at: ' + occurrences.next(1, new Date()));
