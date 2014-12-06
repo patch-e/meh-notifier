@@ -49,7 +49,7 @@ var saveMeh = function(meh) {
         if(err) {
           console.log(err);
         } else {
-          console.log("meh saved to " + mehFileName);
+          console.log('meh saved to ' + mehFileName);
         }
     }); 
 }
