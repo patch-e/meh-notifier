@@ -9,12 +9,14 @@ Patrick Crager
 */
 
 var http = require('http'),
+    fs = require('fs'),
     nodemailer = require('nodemailer'),
     request = require('request'),
     cheerio = require('cheerio'),
     console = require('clim')('meh'),
     later = require('later'),
-    utils = require('./utils');
+    utils = require('./utils'),
+    mehFileName = 'currentMeh.json';
 
 // create transporter with SMTP credentials
 var transporter = nodemailer.createTransport({
@@ -42,7 +44,16 @@ var sendMail = function() {
   });
 };
 
-var currentMeh = {};
+var saveMeh = function(meh) {
+    fs.writeFile(mehFileName, JSON.stringify(meh), function(err) {
+        if(err) {
+          console.log(err);
+        } else {
+          console.log("meh saved to " + mehFileName);
+        }
+    }); 
+}
+
 var fetchAndNotify = function() {
   request('http://meh.com', function (error, response, html) {
     if (!error && response.statusCode === 200) {
@@ -79,15 +90,16 @@ var fetchAndNotify = function() {
     // send the mail
     sendMail();
 
-    // capture the current meh in an object
-    currentMeh = mailOptions;
+    // capture and persist the current meh
+    var currentMeh = mailOptions;
     currentMeh.to = '[redacted]';
+    saveMeh(currentMeh);
   });
 };
 
 // setup the schedule
 later.date.localTime();
-var schedule = later.parse.text('at 00:05 am'),
+var schedule = later.parse.text('at 00:15 am'),
     timer = later.setInterval(fetchAndNotify, schedule);
 
 // handles incoming requests to the server
@@ -98,8 +110,18 @@ var _requestHandler = function(request, response) {
   response.write('waiting...\n');
   response.write('next notification at: ' + occurrences.next(1, new Date()));
   response.write('\n\nmost recent meh notification:\n');
-  response.write(JSON.stringify(currentMeh, null, 4));
-  response.end();
+  
+  fs.readFile(mehFileName, {encoding: 'utf-8'}, function (error, data) {
+    if (!error) {
+      // parse the file data to a JSON object then pretty print it to the response
+      var jsonString = JSON.parse(data);
+      response.write(JSON.stringify(jsonString, null, 4));
+    } else {
+      response.write('failed to read ' + mehFileName + '!');
+    }
+    // end the response in the callback
+    response.end();
+  });  
 };
 
 // fire up the status server
