@@ -38,7 +38,7 @@ var sendMail = function(mailOptions) {
   });
 };
 
-// persist the current 
+// persist the meh
 var saveMeh = function(meh) {
   fs.writeFile(mehFileName, JSON.stringify(meh), function(error) {
     if(error) {
@@ -49,7 +49,7 @@ var saveMeh = function(meh) {
   }); 
 };
 
-// 
+// fetch the current meh, parse it, send email notification, and persist to filesystem
 var fetchAndNotify = function() {
   request('http://meh.com', function (error, response, html) {
     if (!error && response.statusCode === 200) {
