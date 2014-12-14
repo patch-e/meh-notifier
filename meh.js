@@ -18,42 +18,38 @@ var http = require('http'),
     utils = require('./utils'),
     mehFileName = 'currentMeh.json';
 
-// create transporter with SMTP credentials
-var transporter = nodemailer.createTransport({
+// send mail
+var sendMail = function(mailOptions) {
+  // create transporter with SMTP credentials
+  var transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: process.env.smtpUser,
-        pass: process.env.smtpPassword
+      user: process.env.smtpUser,
+      pass: process.env.smtpPassword
     }
-});
+  });
 
-// create e-mail message
-var mailOptions = {
-    from: process.env.mehFrom,
-    to: process.env.mehTo
-};
-
-// send mail
-var sendMail = function() {
   transporter.sendMail(mailOptions, function(error, info) {
-      if (error) {
-          console.log(error);
-      } else {
-          console.log('Message sent: ' + info.response);
-      }
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Message sent: ' + info.response);
+    }
   });
 };
 
+// persist the current 
 var saveMeh = function(meh) {
-    fs.writeFile(mehFileName, JSON.stringify(meh), function(err) {
-        if(err) {
-          console.log(err);
-        } else {
-          console.log('meh saved to ' + mehFileName);
-        }
-    }); 
-}
+  fs.writeFile(mehFileName, JSON.stringify(meh), function(error) {
+    if(error) {
+      console.log(error);
+    } else {
+      console.log('saved to ' + mehFileName);
+    }
+  }); 
+};
 
+// 
 var fetchAndNotify = function() {
   request('http://meh.com', function (error, response, html) {
     if (!error && response.statusCode === 200) {
@@ -62,8 +58,8 @@ var fetchAndNotify = function() {
       // special meh parsing
       var buyButton = $('#hero-buttons button.buy-button');
       var photos = $('#gallery .photos img').each(function(index, img) {
-        var $img = $(img);
-        var src = $img.attr('data-src');
+        var $img = $(img),
+            src = $img.attr('data-src');
         $img.attr('src', src);
       });
       // populate subject/body with pieces from the deal listing
@@ -73,6 +69,12 @@ var fetchAndNotify = function() {
           body += '<div>' + $('section.features').html() + '</div>';
           body += '<div>' + $('section.story').html() + '</div>';
           body += '<div>' + photos + '</div>';
+
+      // create e-mail message
+      var mailOptions = {
+        from: process.env.mehFrom,
+        to: process.env.mehTo
+      };
 
       // populate mail with meh deal
       mailOptions.subject = 'meh - ' + utils.trim(subject);
@@ -88,7 +90,7 @@ var fetchAndNotify = function() {
     }
 
     // send the mail
-    sendMail();
+    sendMail(mailOptions);
 
     // capture and persist the current meh
     var currentMeh = mailOptions;
