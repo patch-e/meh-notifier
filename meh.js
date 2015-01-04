@@ -81,12 +81,12 @@ var fetchAndNotify = function() {
       mailOptions.html = utils.trim(body);
     } else {
       // error logging
-      console.error('error - meh remote status code' + response.statusCode);
+      console.error('error - remote status code' + response.statusCode);
       console.error(error);
 
-      // populate mail with error
-      mailOptions.subject = 'meh - error';
-      mailOptions.text = 'Failed to contact meh for notification: HTTP ' + response.statusCode;
+      // wait 1 minute and try again
+      setTimeout(fetchAndNotify, (1000*60)*1);
+      return;
     }
 
     // send the mail
@@ -101,7 +101,7 @@ var fetchAndNotify = function() {
 
 // setup the schedule
 later.date.localTime();
-var schedule = later.parse.text('at 00:15 am'),
+var schedule = later.parse.text('at 00:05 am'),
     timer = later.setInterval(fetchAndNotify, schedule);
 
 // handles incoming requests to the server
