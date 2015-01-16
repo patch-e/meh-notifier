@@ -11,6 +11,16 @@ Patrick Crager
 module.exports = {
 	addlRegEx: /\(([^()]+)\)$/,
 
+	// type safe lowercase function
+	// returns a lowercased string
+	toLower: function(s) {
+		// only invoke toLowerCase() if a string was passed in
+		if (typeof s === 'string') { 
+			s = s.toLowerCase();
+		}
+		return s;
+	},
+
 	// type safe trim function
 	// returns a trimmed string with continous spaces replaced with a single space
 	trim: function(s) {
@@ -23,7 +33,7 @@ module.exports = {
 
 	// parses the "ABV" text to return a floating point value
 	parseABV: function(s) {
-		if ( typeof s === 'string' ) { 
+		if (typeof s === 'string') { 
 			s = s.replace('ABV:', '').replace(' ', '').replace('%', '');
 		}
 		return parseFloat(s);
@@ -76,8 +86,39 @@ module.exports = {
 				beer.abv = this.parseABV(value);
 				break;
 			case 5:
-				beer.growlerable = (value === 'Yes' ? true : false);
+				beer.growler = (value.toUpperCase() === 'YES' ? true : false);
 				break;
 		}
+	},
+
+	formatDate: function(date, format) {
+	  var dateParts = {
+	  	// month (zero based)
+			'M+' : date.getMonth() + 1,
+			// day
+			'd+' : date.getDate(),
+			// hour
+			'h+' : date.getHours(),
+			// minute
+			'm+' : date.getMinutes(),
+			// second
+			's+' : date.getSeconds(),
+			// quarter
+			'q+' : Math.floor((date.getMonth() + 3) / 3),
+			// millisecond
+			'S'  : date.getMilliseconds()
+		}
+
+		if (/(y+)/.test(format)) {
+			format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+		}
+
+		for (var part in dateParts) {
+			if (new RegExp('(' + part + ')').test(format)) {
+				format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? dateParts[part] : ('00' + dateParts[part]).substr(('' + dateParts[part]).length));
+			}
+		}
+
+		return format;
 	}
 };
