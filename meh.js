@@ -41,7 +41,7 @@ var sendMail = function(mailOptions) {
 // persist the meh
 var saveMeh = function(meh) {
   fs.writeFile(mehFileName, JSON.stringify(meh), function(error) {
-    if(error) {
+    if (error) {
       console.log('error saving:');
       console.log(error);
     }
