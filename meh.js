@@ -33,7 +33,7 @@ var sendMail = function(mailOptions) {
     if (error) {
       console.log(error);
     } else {
-      console.log('Message sent: ' + info.response);
+      console.log('Message sent: ' + info.response + '\n');
     }
   });
 };
@@ -42,9 +42,8 @@ var sendMail = function(mailOptions) {
 var saveMeh = function(meh) {
   fs.writeFile(mehFileName, JSON.stringify(meh), function(error) {
     if(error) {
+      console.log('error saving:');
       console.log(error);
-    } else {
-      console.log('saved to ' + mehFileName);
     }
   }); 
 };
@@ -123,7 +122,7 @@ var _requestHandler = function(request, response) {
     }
     // end the response in the callback
     response.end();
-  });  
+  });
 };
 
 // fire up the status server
