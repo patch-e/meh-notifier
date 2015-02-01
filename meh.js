@@ -100,7 +100,7 @@ var fetchAndNotify = function() {
 
 // setup the schedule
 later.date.localTime();
-var schedule = later.parse.text('at 00:05 am'),
+var schedule = later.parse.text('at 00:01 am'),
     timer = later.setInterval(fetchAndNotify, schedule);
 
 // handles incoming requests to the server
